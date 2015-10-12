@@ -21,7 +21,7 @@ sub each_hist(&) {
             local $main::PRINT = 1;
             $code->();
             if ($main::PRINT) {
-                print main::ARGVOUT "#$ts\n$_";
+                print "#$ts\n$_";
             }
         }
     };
