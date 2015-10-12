@@ -21,27 +21,26 @@ sub each_hist(&) {
             local $main::PRINT = 1;
             $code->();
             if ($main::PRINT) {
-                print "#$ts\n$_";
+                print main::ARGVOUT "#$ts\n$_";
             }
         }
     };
 
     my $ts;
     my $content = "";
-    while (my $line = <>) {
+    while (defined(my $line = <>)) {
         if ($line =~ /\A#(\d+)$/) {
             $ts = $1;
-            $call_code->($ts, $content) if length($content);
-            $content = '';
-            next;
         } elsif (defined $ts) {
             $content .= $line;
         } else {
             die "Invalid input, timestamp line expected";
         }
-    }
-    if (defined($ts) && length($content)) {
-        $call_code->($ts, $content);
+    } continue {
+        if (defined($ts) && length($content)) {
+            $call_code->($ts, $content);
+            $content = '';
+        }
     }
 }
 
@@ -87,6 +86,5 @@ default and is meant to be used from one-liners.
 Inside the Perl code, C<$_> is locally set to the entry content, C<$TS> is
 locally set to the timestamp (and cannot be changed), C<$PRINT> is locally set
 to 1. If C<$PRINT> is still true by the time the Perl code ends, the entry
-(along with its timestamp) will be printed to STDOUT. So to remove a line, you
-can set C<$PRINT> to 0 in your code. To modify content, modify the C<$_>
-variable.
+(along with its timestamp) will be printed. So to remove a line, you can set
+C<$PRINT> to 0 in your code. To modify content, modify the C<$_> variable.
