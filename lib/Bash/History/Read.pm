@@ -28,19 +28,25 @@ sub each_hist(&) {
 
     my $ts;
     my $content = "";
+    my $cur_line_is = '';
     while (defined(my $line = <>)) {
         if ($line =~ /\A#(\d+)$/) {
+            if (defined($ts) && length($content)) {
+                # send previous entry
+                $call_code->($ts, $content);
+            }
             $ts = $1;
+            $content = '';
+            $cur_line_is = 'ts';
         } elsif (defined $ts) {
             $content .= $line;
+            $cur_line_is = 'entry';
         } else {
             die "Invalid input, timestamp line expected";
         }
-    } continue {
-        if (defined($ts) && length($content)) {
-            $call_code->($ts, $content);
-            $content = '';
-        }
+    }
+    if ($cur_line_is eq 'entry') {
+        $call_code->($ts, $content);
     }
 }
 
