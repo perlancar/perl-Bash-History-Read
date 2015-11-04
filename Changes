@@ -1,5 +1,11 @@
 Revision history for Bash-History-Read
 
+0.02    2015-11-04 (PERLANCAR)
+
+	- [Bugfix] Don't add timestamp for each line in a multiple-line
+	  entry.
+
+
 0.01    2015-10-12 (PERLANCAR)
 
         - First release.
