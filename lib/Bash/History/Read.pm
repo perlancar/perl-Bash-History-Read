@@ -9,9 +9,10 @@ use warnings;
 
 use Exporter 'import';
 our @EXPORT = qw(each_hist);
+our @EXPORT_OK = qw(parse_bash_history_file);
 
-sub each_hist(&) {
-    my $code = shift;
+sub _doit {
+    my ($which, $code, $fh0) = @_;
 
     my $call_code = sub {
         my ($ts, $content) = @_;
@@ -21,39 +22,70 @@ sub each_hist(&) {
             local $main::PRINT = 1;
             $code->();
             if ($main::PRINT) {
-                print "#$ts\n$_";
+                print "#$ts\n" if defined $ts;
+                print;
             }
         }
     };
 
+    my $fh;
+    if ($which eq 'each_hist') {
+        $fh = \*ARGV;
+    } else {
+        $fh = $fh0;
+    }
+
     my $ts;
-    my $content = "";
-    my $cur_line_is = '';
-    while (defined(my $line = <>)) {
+    while (defined(my $line = <$fh>)) {
         if ($line =~ /\A#(\d+)$/) {
-            if (defined($ts) && length($content)) {
-                # send previous entry
-                $call_code->($ts, $content);
-            }
             $ts = $1;
-            $content = '';
-            $cur_line_is = 'ts';
-        } elsif (defined $ts) {
-            $content .= $line;
-            $cur_line_is = 'entry';
         } else {
-            die "Invalid input, timestamp line expected";
+            $call_code->($ts, $line);
+            undef $ts;
         }
     }
-    if ($cur_line_is eq 'entry') {
-        $call_code->($ts, $content);
-    }
+}
+
+sub each_hist(&) {
+    my $code = shift;
+    _doit('each_hist', $code);
+}
+
+sub parse_bash_history_file {
+    my ($path) = @_;
+
+    $path //= $ENV{HISTFILE} // "$ENV{HOME}/.bash_history";
+
+    open my($fh), "<", $path or die "Can't open bash history file '$path': $!";
+    my $res = [];
+    _doit('parse_bash_history_file',
+          sub {
+              push @$res, [$main::TS, $_];
+              $main::PRINT = 0;
+          },
+          $fh,
+      );
+    $res;
 }
 
 1;
 # ABSTRACT: Utility to read bash history file entries
 
 =head1 SYNOPSIS
+
+From script:
+
+ use Bash::History::Read qw(parse_bash_history_file);
+
+ my $res = parse_bash_history_file("$ENV{HOME}/.bash_history");
+
+Sample result:
+
+ [
+   [undef, "some-command\n"],
+   [1446715184, "du -sm\n"],
+   [1446715190, "ls -l\n"],
+ ]
 
 From the command-line:
 
@@ -82,6 +114,11 @@ See C<each_hist> for one routine to let you handle this format conveniently.
 
 
 =head1 FUNCTIONS
+
+=head2 parse_bash_history_file([ $path ]) => array
+
+Parse entries from bash history file. If unspecified, C<$path> will default to
+C<HISTFILE> environment variable or C<$HOME/.bash_history>.
 
 =head2 each_hist { PERL_CODE }
 
