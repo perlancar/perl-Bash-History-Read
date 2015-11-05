@@ -120,6 +120,9 @@ See C<each_hist> for one routine to let you handle this format conveniently.
 Parse entries from bash history file. If unspecified, C<$path> will default to
 C<HISTFILE> environment variable or C<$HOME/.bash_history>.
 
+Return an array of entries, where each entry is C<<[$timestamp, $line]>> and
+C<$timestamp> can be undef if entry does not have a timestamp.
+
 =head2 each_hist { PERL_CODE }
 
 Will read lines from the diamond operator (C<< <> >>) and call Perl code for

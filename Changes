@@ -1,5 +1,16 @@
 Revision history for Bash-History-Read
 
+0.03    2015-11-05 (PERLANCAR)
+
+        - Change parsing algorithm to be more flexible and more closely follows
+          bash. Since bash history file can contain a mix of entries that have
+          timestamps and entries that do not, we just need to assume that all
+          /^\#\d+$/ lines are timestamps, instead of requiring that all entries
+          are prefixed with a timestamp.
+
+        - Add parse_bash_history_file().
+
+
 0.02    2015-11-04 (PERLANCAR)
 
 	- [Bugfix] Don't add timestamp for each line in a multiple-line
