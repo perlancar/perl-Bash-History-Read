@@ -3,7 +3,7 @@ package Bash::History::Read;
 # DATE
 # VERSION
 
-use 5.010001;
+use 5.014;
 use strict;
 use warnings;
 
