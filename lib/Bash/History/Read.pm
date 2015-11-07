@@ -21,6 +21,9 @@ sub _doit {
             local $main::TS = $ts;
             local $main::PRINT = 1;
             $code->();
+            if (!defined($main::TS)) {
+                undef $ts;
+            }
             if ($main::PRINT) {
                 print "#$ts\n" if defined $ts;
                 print;
@@ -130,7 +133,9 @@ each history entry. Can handle timestamp lines. This routine is exported by
 default and is meant to be used from one-liners.
 
 Inside the Perl code, C<$_> is locally set to the entry content, C<$TS> is
-locally set to the timestamp (and cannot be changed), C<$PRINT> is locally set
-to 1. If C<$PRINT> is still true by the time the Perl code ends, the entry
-(along with its timestamp) will be printed. So to remove a line, you can set
-C<$PRINT> to 0 in your code. To modify content, modify the C<$_> variable.
+locally set to the timestamp (and changes to this variable is ignored, except
+when you undefine the variable, which will remove the timestamp from output),
+C<$PRINT> is locally set to 1. If C<$PRINT> is still true by the time the Perl
+code ends, the entry (along with its timestamp) will be printed. So to remove a
+line, you can set C<$PRINT> to 0 in your code. To modify content, modify the
+C<$_> variable.
