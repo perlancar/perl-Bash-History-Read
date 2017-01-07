@@ -1,5 +1,3 @@
-Revision history for Bash-History-Read
-
 0.04    2015-11-07 (PERLANCAR)
 
 	- Allow stripping timestamp by undef-ing $TS.
